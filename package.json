@@ -1,0 +1,24 @@
+
+{
+  "name": "react-native-boundary",
+  "version": "0.0.1",
+  "description": "native geofencing and region monitoring",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "react-native",
+    "geofence",
+    "boundary",
+    "ios",
+    "android",
+    "location",
+    "monitoring"
+  ],
+  "author": "Edward Owens",
+  "license": "",
+  "peerDependencies": {
+    "react-native": ">0.41.2",
+  }
+}
