@@ -34,20 +34,32 @@
       compile project(':react-native-boundary')
   	```
 
-#### Windows
-[Read it! :D](https://github.com/ReactWindows/react-native)
-
-1. In Visual Studio add the `RNBoundary.sln` in `node_modules/react-native-boundary/windows/RNBoundary.sln` folder to their solution, reference from their app.
-2. Open up your `MainPage.cs` app
-  - Add `using Boundary.RNBoundary;` to the usings at the top of the file
-  - Add `new RNBoundaryPackage()` to the `List<IReactPackage>` returned by the `Packages` method
-
-
 ## Usage
 ```javascript
-import RNBoundary from 'react-native-boundary';
+import Boundary, {Events} from 'react-native-boundary';
 
-// TODO: What to do with the module?
-RNBoundary;
+class MyComponent extends Class {
+  componentWillMount() {
+    Boundary.add({
+      lat: 34.017714,
+      lng: -118.499033,
+      radius: 10, // in meters
+      id: "Chipotle",
+    })
+      .then(() => console.log("success!"))
+      .catch(e => console.error("error :(", e));
+   
+    Boundary.on(Events.ENTER, id => {
+      // Prints 'Get out of my Chipotle!!'
+      console.log(`Get out of my ${id}!!`);
+    });
+  }
+  
+  componentWillUnmount() {
+    Boundary.removeAll()
+      .then(() => console.log("success!"))
+      .catch(e => console.error("error :(", e));
+  }
+}
 ```
   
