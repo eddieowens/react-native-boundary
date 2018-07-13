@@ -161,6 +161,7 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule {
                 .setRequestId(readableMap.getString("id"))
                 .setCircularRegion(readableMap.getDouble("lat"), readableMap.getDouble("lng"), (float) readableMap.getDouble("radius"))
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
+                .setExpirationDuration(Geofence.NEVER_EXPIRE)
                 .build();
     }
 
