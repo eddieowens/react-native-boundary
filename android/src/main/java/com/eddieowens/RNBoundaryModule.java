@@ -26,6 +26,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class RNBoundaryModule extends ReactContextBaseJavaModule {
 
@@ -190,8 +191,6 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule {
             return mBoundaryPendingIntent;
         }
         Intent intent = new Intent(this.reactContext, BoundaryIntentService.class);
-        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
-        // calling addGeofences() and removeGeofences().
         mBoundaryPendingIntent = PendingIntent.getService(this.reactContext, 0, intent, PendingIntent.
                 FLAG_UPDATE_CURRENT);
         return mBoundaryPendingIntent;

@@ -1,4 +1,3 @@
-
 {
   "name": "react-native-boundary",
   "version": "0.0.1",
@@ -19,6 +18,9 @@
   "author": "Edward Owens",
   "license": "",
   "peerDependencies": {
-    "react-native": ">0.41.2",
+    "react-native": ">0.49.0"
+  },
+  "devDependencies": {
+    "react-native": "^0.55.4"
   }
 }
