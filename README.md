@@ -43,7 +43,7 @@ class MyComponent extends Class {
     Boundary.add({
       lat: 34.017714,
       lng: -118.499033,
-      radius: 10, // in meters
+      radius: 50, // in meters
       id: "Chipotle",
     })
       .then(() => console.log("success!"))
