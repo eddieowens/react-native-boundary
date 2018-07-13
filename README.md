@@ -1,6 +1,8 @@
 
 # react-native-boundary
 
+### Note: Currently in development. Will be releasing an MVP soon.
+
 ## Getting started
 
 `$ npm install react-native-boundary --save`
