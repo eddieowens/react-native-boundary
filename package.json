@@ -1,6 +1,6 @@
 {
   "name": "react-native-boundary",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "native geofencing and region monitoring",
   "main": "index.js",
   "scripts": {
