@@ -96,7 +96,7 @@ Name        | Arguments                                  | Note
 
 ### Types
 #### Boundary
-Name     | Type     | Note
+Field    | Type     | Note
 -------- | -------- | ----
 `id`     | `string` | ID for your boundary. Value that is returned when an [event](#events) is triggered
 `lat`    | `number` | Must be a valid latitude
@@ -104,8 +104,8 @@ Name     | Type     | Note
 `radius` | `number` | In meters. It is highly suggested that the `radius` is greater than 50 meters
 
 #### Events
-Name     | Type      | Note
+Field    | Type      | Note
 -------- | --------- | ----
-`ENTER ` | `string`  | Event for when a user enters a [boundary](#boundary)  
+`ENTER`  | `string`  | Event for when a user enters a [boundary](#boundary)  
 `EXIT`   | `string`  | Event for when a user exists a [boundary](#boundary)
 
