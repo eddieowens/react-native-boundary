@@ -89,8 +89,8 @@ class MyComponent extends Class {
 ### Functions
 Name        | Arguments                                  | Note
 ----------- | ------------------------------------------ | ---
-`on`        | id: [event](#Events), callback: `function` | Triggers the callback passing in an array of boundary ids as `strings`. Can be called in the background
-`add`       | boundary: [boundary](#Boundary)            | Adds a `Boundary` that can be triggered when an [event](#Types) occurs.
+`on`        | id: [event](#events), callback: `function` | Triggers the callback passing in an array of boundary ids as `strings`. Can be called in the background
+`add`       | boundary: [boundary](#boundary)            | Adds a `Boundary` that can be triggered when an [event](#events) occurs.
 `remove`    | boundaryId: `string`                       | Removes a Boundary from being triggered. Boundaries will remain until `remove` or `removeAll` is called or the app is uninstalled
 `removeAll` | `void`                                     | Removes all boundaries.
 
@@ -106,6 +106,6 @@ radius | `number` | In meters.. It is highly suggested that the `radius` is grea
 #### Events
 Name  | Type      | Note
 ----- | --------- | ----
-ENTER | `string`  | Event for when a user enters a [boundary](#Boundary) | 
-EXIT  | `string`  | Event for when a user exists a [boundary](#Boundary)
+ENTER | `string`  | Event for when a user enters a [boundary](#boundary)  
+EXIT  | `string`  | Event for when a user exists a [boundary](#boundary)
 
