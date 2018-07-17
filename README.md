@@ -3,6 +3,40 @@
 
 ### Note: Currently in development. Will be releasing an MVP soon.
 
+## Usage
+```javascript
+import Boundary, {Events} from 'react-native-boundary';
+
+class MyComponent extends Class {
+  componentWillMount() {
+    Boundary.add({
+      lat: 34.017714,
+      lng: -118.499033,
+      radius: 50, // in meters
+      id: "Chipotle",
+    })
+      .then(() => console.log("success!"))
+      .catch(e => console.error("error :(", e));
+   
+    Boundary.on(Events.ENTER, ids => {
+      // Prints 'Get out of my Chipotle!!'
+      console.log(`Get out of my ${ids[0]}!!`);
+    });
+    
+    Boundary.on(Events.EXIT, ids => {
+      // Prints 'Ya! You better get out of my Chipotle!!'
+      console.log(`Ya! You better get out of my ${ids[0]}!!`)
+    })
+  }
+  
+  componentWillUnmount() {
+    Boundary.remove('Chipotle')
+      .then(() => console.log('Goodbye Chipotle :('))
+      .catch(e => console.log('Failed to delete Chipotle :)', e))
+  }
+}
+```
+
 ## Getting started
 
 `$ npm install react-native-boundary --save`
@@ -48,40 +82,6 @@ Add the `ACCESS_FINE_LOCATION` permission to your `AndroidManifest.xml` like so,
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     ...
 </manifest>
-```
-
-## Usage
-```javascript
-import Boundary, {Events} from 'react-native-boundary';
-
-class MyComponent extends Class {
-  componentWillMount() {
-    Boundary.add({
-      lat: 34.017714,
-      lng: -118.499033,
-      radius: 50, // in meters
-      id: "Chipotle",
-    })
-      .then(() => console.log("success!"))
-      .catch(e => console.error("error :(", e));
-   
-    Boundary.on(Events.ENTER, ids => {
-      // Prints 'Get out of my Chipotle!!'
-      console.log(`Get out of my ${ids[0]}!!`);
-    });
-    
-    Boundary.on(Events.EXIT, ids => {
-      // Prints 'Ya! You better get out of my Chipotle!!'
-      console.log(`Ya! You better get out of my ${ids[0]}!!`)
-    })
-  }
-  
-  componentWillUnmount() {
-    Boundary.remove('Chipotle')
-      .then(() => console.log('Goodbye Chipotle :('))
-      .catch(e => console.log('Failed to delete Chipotle :)', e))
-  }
-}
 ```
 
 ## API
