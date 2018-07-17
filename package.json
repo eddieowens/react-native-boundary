@@ -1,6 +1,6 @@
 {
   "name": "react-native-boundary",
-  "version": "0.0.3",
+  "version": "0.0.9",
   "description": "native geofencing and region monitoring",
   "main": "index.js",
   "scripts": {
@@ -19,8 +19,5 @@
   "license": "",
   "peerDependencies": {
     "react-native": ">0.49.0"
-  },
-  "devDependencies": {
-    "react-native": "^0.55.4"
   }
 }

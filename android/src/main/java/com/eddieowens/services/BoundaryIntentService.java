@@ -3,7 +3,9 @@ package com.eddieowens.services;
 import android.app.IntentService;
 import android.content.Intent;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 
+import com.eddieowens.RNBoundaryModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.google.android.gms.location.Geofence;
@@ -11,6 +13,7 @@ import com.google.android.gms.location.GeofencingEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static com.eddieowens.RNBoundaryModule.ON_ENTER;
 import static com.eddieowens.RNBoundaryModule.ON_EXIT;
@@ -25,32 +28,16 @@ public class BoundaryIntentService extends IntentService {
         super(name);
     }
 
+    public BoundaryIntentService() {
+        super("BoundaryIntentService");
+    }
+
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
-        if (geofencingEvent != null) {
-            switch (geofencingEvent.getGeofenceTransition()) {
-                case Geofence.GEOFENCE_TRANSITION_ENTER:
-                    sendEvent(geofencingEvent, ON_ENTER);
-                    break;
-                case Geofence.GEOFENCE_TRANSITION_EXIT:
-                    sendEvent(geofencingEvent, ON_EXIT);
-                    break;
-            }
+        if (intent != null) {
+            intent.setAction("RNBoundary");
+            LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
+            localBroadcastManager.sendBroadcast(intent);
         }
-    }
-
-    private void sendEvent(GeofencingEvent geofencingEvent, String event) {
-        List<String> geofenceIds = new ArrayList<>();
-        for (Geofence geofence : geofencingEvent.getTriggeringGeofences()) {
-            geofenceIds.add(geofence.getRequestId());
-        }
-        getReactApplicationContext()
-                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                .emit(ON_ENTER, geofenceIds);
-    }
-
-    private ReactApplicationContext getReactApplicationContext() {
-        return (ReactApplicationContext) getApplicationContext();
     }
 }

@@ -7,7 +7,7 @@
 
 `$ npm install react-native-boundary --save`
 
-### Mostly automatic installation
+### Automatic Installation
 
 `$ react-native link react-native-boundary`
 
@@ -35,6 +35,20 @@
   	```
       compile project(':react-native-boundary')
   	```
+  	
+### Post Install
+
+#### Android
+
+Add the `ACCESS_FINE_LOCATION` permission to your `AndroidManifest.xml` like so,
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.mypackage">
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    ...
+</manifest>
+```
 
 ## Usage
 ```javascript
@@ -51,17 +65,47 @@ class MyComponent extends Class {
       .then(() => console.log("success!"))
       .catch(e => console.error("error :(", e));
    
-    Boundary.on(Events.ENTER, id => {
+    Boundary.on(Events.ENTER, ids => {
       // Prints 'Get out of my Chipotle!!'
-      console.log(`Get out of my ${id}!!`);
+      console.log(`Get out of my ${ids[0]}!!`);
     });
+    
+    Boundary.on(Events.EXIT, ids => {
+      // Prints 'Ya! You better get out of my Chipotle!!'
+      console.log(`Ya! You better get out of my ${ids[0]}!!`)
+    })
   }
   
   componentWillUnmount() {
-    Boundary.removeAll()
-      .then(() => console.log("success!"))
-      .catch(e => console.error("error :(", e));
+    Boundary.remove('Chipotle')
+      .then(() => console.log('Goodbye Chipotle :('))
+      .catch(e => console.log('Failed to delete Chipotle :)', e))
   }
 }
 ```
-  
+
+## API
+
+### Functions
+Name        | Arguments                                  | Note
+----------- | ------------------------------------------ | ---
+`on`        | id: [event](#Events), callback: `function` | Triggers the callback passing in an array of boundary ids as `strings`. Can be called in the background
+`add`       | boundary: [boundary](#Boundary)            | Adds a `Boundary` that can be triggered when an [event](#Types) occurs.
+`remove`    | boundaryId: `string`                       | Removes a Boundary from being triggered. Boundaries will remain until `remove` or `removeAll` is called or the app is uninstalled
+`removeAll` | `void`                                     | Removes all boundaries.
+
+### Types
+#### Boundary
+Name   | Type     | Note
+------ | -------- | ----
+id     | `string` |  
+lat    | `number` | Must be a valid latitude
+lng    | `number` | Must be a valid longitude
+radius | `number` | In meters.. It is highly suggested that the `radius` is greater than 50 meters.
+
+#### Events
+Name  | Type      | Note
+----- | --------- | ----
+ENTER | `string`  | Event for when a user enters a [boundary](#Boundary) | 
+EXIT  | `string`  | Event for when a user exists a [boundary](#Boundary)
+

@@ -1,4 +1,3 @@
-
 buildscript {
     repositories {
         jcenter()
@@ -12,13 +11,18 @@ buildscript {
 
 apply plugin: 'com.android.library'
 
+def DEFAULT_COMPILE_SDK_VERSION = 26
+def DEFAULT_BUILD_TOOLS_VERSION = "27.0.3"
+def DEFAULT_TARGET_SDK_VERSION = 26
+def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION = "15.0.1"
+
 android {
-    compileSdkVersion 26
-    buildToolsVersion "27.0.3"
+    compileSdkVersion rootProject.hasProperty('compileSdkVersion') ? rootProject.compileSdkVersion : DEFAULT_COMPILE_SDK_VERSION
+    buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.buildToolsVersion : DEFAULT_BUILD_TOOLS_VERSION
 
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 26
+        targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : DEFAULT_TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0"
     }
@@ -30,7 +34,6 @@ android {
 repositories {
     mavenLocal()
     google()
-    maven { url "https://jitpack.io" }
     jcenter()
     maven {
         // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
@@ -38,8 +41,10 @@ repositories {
     }
 }
 
+def googlePlayServicesVersion = rootProject.hasProperty('googlePlayServicesVersion') ? rootProject.googlePlayServicesVersion : DEFAULT_GOOGLE_PLAY_SERVICES_VERSION
+
 dependencies {
-    implementation "com.google.android.gms:play-services-location:15.0.1"
-    implementation 'com.facebook.react:react-native:+'
+    implementation "com.google.android.gms:play-services-location:$googlePlayServicesVersion"
+    api 'com.facebook.react:react-native:+'
 }
   

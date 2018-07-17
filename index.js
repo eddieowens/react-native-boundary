@@ -14,18 +14,18 @@ export {
 }
 
 export default {
-  add: geofence => {
-    if (!geofence || (geofence.constructor !== Array && typeof geofence !== 'object')) {
-      throw TAG + ': a geofence must be an array or non-null object';
+  add: boundary => {
+    if (!boundary || (boundary.constructor !== Array && typeof boundary !== 'object')) {
+      throw TAG + ': a boundary must be an array or non-null object';
     }
-    RNBoundary.add(geofence);
+    return RNBoundary.add(boundary);
   },
 
   on: (event, callback) => {
     if (typeof callback !== 'function') {
       throw TAG + ': callback function must be provided';
     }
-    if (!Events.hasOwnProperty(event)) {
+    if (!Object.values(Events).find(e => e === event)) {
       throw TAG + ': invalid event';
     }
 
@@ -33,14 +33,16 @@ export default {
   },
 
   removeAll: () => {
+    Object.values(Events).forEach(e => DeviceEventEmitter.removeAllListeners(e));
     return RNBoundary.removeAll();
   },
 
-  remove: toRemove => {
-    if (!toRemove || (toRemove.constructor !== Array && typeof toRemove !== 'object')) {
-      throw TAG + ': a geofence must be an array or non-null object';
+  remove: id => {
+    if (!id || (id.constructor !== Array && typeof id !== 'string')) {
+      throw TAG + ': a boundary must be an array or non-null object';
     }
-    return RNBoundary.remove(toRemove);
+
+    return RNBoundary.remove(id);
   }
 }
 
