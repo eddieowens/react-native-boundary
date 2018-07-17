@@ -63,7 +63,7 @@ class MyComponent extends Class {
 2. Append the following lines to `android/settings.gradle`:
   	```
   	include ':react-native-boundary'
-  	project(':react-native-boundary').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-boundary/android')
+  	project(':react-native-boundary').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-boundary/android')
   	```
 3. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
   	```
@@ -89,23 +89,23 @@ Add the `ACCESS_FINE_LOCATION` permission to your `AndroidManifest.xml` like so,
 ### Functions
 Name        | Arguments                                  | Note
 ----------- | ------------------------------------------ | ---
-`on`        | id: [event](#events), callback: `function` | Triggers the callback passing in an array of boundary ids as `strings`. Can be called in the background
-`add`       | boundary: [boundary](#boundary)            | Adds a `Boundary` that can be triggered when an [event](#events) occurs.
-`remove`    | boundaryId: `string`                       | Removes a Boundary from being triggered. Boundaries will remain until `remove` or `removeAll` is called or the app is uninstalled
+`on`        | id: [event](#events), callback: `function` | Triggers the callback when the `event` occurs. The callback will be passed an array of boundary ids as `strings`. Can be called in the background
+`add`       | boundary: [boundary](#boundary)            | Adds a `Boundary` that can be triggered when an [event](#events) occurs
+`remove`    | id: `string`                               | Removes a Boundary from being triggered. Boundaries will remain until `remove` or `removeAll` is called or the app is uninstalled
 `removeAll` | `void`                                     | Removes all boundaries.
 
 ### Types
 #### Boundary
-Name   | Type     | Note
------- | -------- | ----
-id     | `string` |  
-lat    | `number` | Must be a valid latitude
-lng    | `number` | Must be a valid longitude
-radius | `number` | In meters.. It is highly suggested that the `radius` is greater than 50 meters.
+Name     | Type     | Note
+-------- | -------- | ----
+`id`     | `string` | ID for your boundary. Value that is returned when an [event](#events) is triggered
+`lat`    | `number` | Must be a valid latitude
+`lng`    | `number` | Must be a valid longitude
+`radius` | `number` | In meters. It is highly suggested that the `radius` is greater than 50 meters
 
 #### Events
-Name  | Type      | Note
------ | --------- | ----
-ENTER | `string`  | Event for when a user enters a [boundary](#boundary)  
-EXIT  | `string`  | Event for when a user exists a [boundary](#boundary)
+Name     | Type      | Note
+-------- | --------- | ----
+`ENTER ` | `string`  | Event for when a user enters a [boundary](#boundary)  
+`EXIT`   | `string`  | Event for when a user exists a [boundary](#boundary)
 
