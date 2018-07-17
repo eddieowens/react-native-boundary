@@ -7,9 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -224,9 +221,6 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule {
             if (geofencingEvent != null) {
                 switch (geofencingEvent.getGeofenceTransition()) {
                     case Geofence.GEOFENCE_TRANSITION_ENTER:
-                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-                        Ringtone r = RingtoneManager.getRingtone(reactContext, notification);
-                        r.play();
                         sendEvent(geofencingEvent, ON_ENTER);
                         break;
                     case Geofence.GEOFENCE_TRANSITION_EXIT:
