@@ -1,8 +1,10 @@
-import {DeviceEventEmitter, NativeModules} from 'react-native';
+import {NativeEventEmitter, NativeModules} from 'react-native';
 
 const {RNBoundary} = NativeModules;
 
 const TAG = "RNBoundary";
+
+const boundaryEventEmitter = new NativeEventEmitter(RNBoundary);
 
 const Events = {
   EXIT: "onExit",
@@ -18,7 +20,15 @@ export default {
     if (!boundary || (boundary.constructor !== Array && typeof boundary !== 'object')) {
       throw TAG + ': a boundary must be an array or non-null object';
     }
-    return RNBoundary.add(boundary);
+    return new Promise((resolve, reject) => {
+      if (typeof boundary === 'object' && !boundary.id) {
+        reject(TAG + ': an id is required')
+      }
+
+      RNBoundary.add(boundary)
+        .then(id => resolve(id))
+        .catch(e => reject(e))
+    })
   },
 
   on: (event, callback) => {
@@ -29,17 +39,17 @@ export default {
       throw TAG + ': invalid event';
     }
 
-    return DeviceEventEmitter.addListener(event, callback);
+    return boundaryEventEmitter.addListener(event, callback);
   },
 
   removeAll: () => {
-    Object.values(Events).forEach(e => DeviceEventEmitter.removeAllListeners(e));
+    Object.values(Events).forEach(e => boundaryEventEmitter.removeAllListeners(e));
     return RNBoundary.removeAll();
   },
 
   remove: id => {
     if (!id || (id.constructor !== Array && typeof id !== 'string')) {
-      throw TAG + ': a boundary must be an array or non-null object';
+      throw TAG + ': id must be a string';
     }
 
     return RNBoundary.remove(id);
