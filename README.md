@@ -1,9 +1,10 @@
 
 # react-native-boundary
 
-### Note: Currently in development. Will be releasing an MVP soon.
+A simple, native and efficient geofencing/region monitoring react native library for both iOS and android. 
 
 ## Usage
+#### Basic
 ```javascript
 import Boundary, {Events} from 'react-native-boundary';
 
@@ -36,7 +37,6 @@ class MyComponent extends Class {
   }
 }
 ```
-
 ## Getting started
 
 `$ npm install react-native-boundary --save`
@@ -84,15 +84,25 @@ Add the `ACCESS_FINE_LOCATION` permission to your `AndroidManifest.xml` like so,
 </manifest>
 ```
 
+#### iOS
+Before iOS 11:
+Add the following to your `Info.plist`:
+- `NSLocationAlwaysUsageDescription`
+
+For iOS 11:
+Add the following to your `Info.plist`:
+- `NSLocationWhenInUseUsageDescription`
+- `NSLocationAlwaysAndWhenInUseUsageDescription`
+
 ## API
 
 ### Functions
-Name        | Arguments                                  | Note
------------ | ------------------------------------------ | ---
-`on`        | id: [event](#events), callback: `function` | Triggers the callback when the `event` occurs. The callback will be passed an array of boundary ids as `strings`. Can be called in the background
-`add`       | boundary: [boundary](#boundary)            | Adds a `Boundary` that can be triggered when an [event](#events) occurs
-`remove`    | id: `string`                               | Removes a Boundary from being triggered. Boundaries will remain until `remove` or `removeAll` is called or the app is uninstalled
-`removeAll` | `void`                                     | Removes all boundaries.
+Name        | Arguments                                     | Note
+----------- | --------------------------------------------- | ---
+`on`        | event: [event](#events), callback: `function` | Triggers the callback when the `event` occurs. The callback will be passed an array of boundary ids as `strings`. Can be called in the background
+`add`       | boundary: [boundary](#boundary)               | Adds a `Boundary` that can be triggered when an [event](#events) occurs
+`remove`    | id: `string`                                  | Removes a Boundary from being triggered. Boundaries will remain until `remove` or `removeAll` is called or the app is uninstalled
+`removeAll` | `void`                                        | Removes all boundaries.
 
 ### Types
 #### Boundary
@@ -107,5 +117,5 @@ Field    | Type     | Note
 Field    | Type      | Note
 -------- | --------- | ----
 `ENTER`  | `string`  | Event for when a user enters a [boundary](#boundary)  
-`EXIT`   | `string`  | Event for when a user exists a [boundary](#boundary)
+`EXIT`   | `string`  | Event for when a user exits a [boundary](#boundary)
 
