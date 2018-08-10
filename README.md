@@ -1,10 +1,9 @@
 
 # react-native-boundary
 
-A simple, native and efficient geofencing/region monitoring react native library for both iOS and android. 
+A simple, native, and efficient geofencing/region monitoring react native library for both iOS and android. 
 
 ## Usage
-#### Basic
 ```javascript
 import Boundary, {Events} from 'react-native-boundary';
 
