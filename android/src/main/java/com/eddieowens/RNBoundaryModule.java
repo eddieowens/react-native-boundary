@@ -10,8 +10,10 @@ import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
-import com.eddieowens.services.BoundaryIntentService;
+import com.eddieowens.errors.GeofenceErrorMessages;
+import com.eddieowens.services.BoundaryEventIntentService;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -32,13 +34,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class RNBoundaryModule extends ReactContextBaseJavaModule {
 
     public static final String ON_ENTER = "onEnter";
     public static final String ON_EXIT = "onExit";
-    private static final String TAG = "RNBoundary";
+    public static final String TAG = "RNBoundary";
 
     private final GeofencingClient mGeofencingClient;
 
@@ -46,24 +47,30 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule {
 
     public RNBoundaryModule(ReactApplicationContext reactContext) {
         super(reactContext);
-        this.mGeofencingClient = LocationServices.getGeofencingClient(reactContext);
-        GeofenceEventBroadcastReceiver geofenceEventBroadcastReceiver = new GeofenceEventBroadcastReceiver();
-        LocalBroadcastManager.getInstance(reactContext).registerReceiver(geofenceEventBroadcastReceiver, new IntentFilter("RNBoundary"));
+        Log.i(TAG, reactContext.toString());
+        this.mGeofencingClient = LocationServices.getGeofencingClient(getReactApplicationContext());
+        LocalBroadcastManager.getInstance(getReactApplicationContext().getBaseContext())
+                .registerReceiver(
+                        new GeofenceEventReceivedBroadcastReceiver(),
+                        new IntentFilter(BoundaryEventIntentService.ACTION)
+                );
     }
 
     @ReactMethod
-    public void removeAll() {
+    public void removeAll(final Promise promise) {
         mGeofencingClient.removeGeofences(getBoundaryPendingIntent())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Logger.getLogger(TAG).info("Successfully removed all geofences");
+                        Log.i(TAG, "Successfully removed all geofences");
+                        promise.resolve(null);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Logger.getLogger(TAG).info("Failed to remove all geofences");
+                        Log.i(TAG, "Failed to remove all geofences");
+                        promise.reject(e);
                     }
                 });
     }
@@ -138,8 +145,8 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule {
         if (mBoundaryPendingIntent != null) {
             return mBoundaryPendingIntent;
         }
-        Intent intent = new Intent(getReactApplicationContext(), BoundaryIntentService.class);
-        mBoundaryPendingIntent = PendingIntent.getService(getReactApplicationContext(), 0, intent, PendingIntent.
+        Intent intent = new Intent(getReactApplicationContext().getBaseContext(), BoundaryEventIntentService.class);
+        mBoundaryPendingIntent = PendingIntent.getService(getReactApplicationContext().getBaseContext(), 0, intent, PendingIntent.
                 FLAG_UPDATE_CURRENT);
         return mBoundaryPendingIntent;
 
@@ -173,7 +180,7 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule {
         if (ActivityCompat.checkSelfPermission(getReactApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             promise.reject("PERM", "Access fine location is not permitted");
         } else {
-            Logger.getLogger(TAG).info("Attempting to add geofence.");
+            Log.i(TAG, "Attempting to add geofence.");
 
             mGeofencingClient.addGeofences(
                     geofencingRequest,
@@ -182,14 +189,14 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule {
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Logger.getLogger(TAG).info("Successfully added geofence.");
+                            Log.i(TAG, "Successfully added geofence.");
                             promise.resolve(requestId);
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Logger.getLogger(TAG).info("Failed to add geofence.");
+                            Log.i(TAG, "Failed to add geofence.");
                             promise.reject(e);
                         }
                     });
@@ -197,44 +204,41 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule {
     }
 
     private void removeGeofence(final Promise promise, final List<String> requestIds) {
-        Logger.getLogger(TAG).info("Attempting to remove geofence.");
+        Log.i(TAG, "Attempting to remove geofence.");
         mGeofencingClient.removeGeofences(requestIds)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Logger.getLogger(TAG).info("Successfully removed geofence.");
+                        Log.i(TAG, "Successfully removed geofence.");
                         promise.resolve(null);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Logger.getLogger(TAG).info("Failed to remove geofence.");
+                        Log.i(TAG, "Failed to remove geofence.");
                         promise.reject(e);
                     }
                 });
     }
 
-    @Override
-    public String getName() {
-        return "RNBoundary";
-    }
-
-    public class GeofenceEventBroadcastReceiver extends BroadcastReceiver {
+    public class GeofenceEventReceivedBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
-            if (geofencingEvent != null) {
-                switch (geofencingEvent.getGeofenceTransition()) {
-                    case Geofence.GEOFENCE_TRANSITION_ENTER:
-                        Logger.getLogger(TAG).info("Enter geofence event detected. Sending event.");
-                        sendEvent(geofencingEvent, ON_ENTER);
-                        break;
-                    case Geofence.GEOFENCE_TRANSITION_EXIT:
-                        Logger.getLogger(TAG).info("Exit geofence event detected. Sending event.");
-                        sendEvent(geofencingEvent, ON_EXIT);
-                        break;
-                }
+            if (geofencingEvent.hasError()) {
+                Log.e(TAG, "Error in handling geofence " + GeofenceErrorMessages.getErrorString(geofencingEvent.getErrorCode()));
+                return;
+            }
+            switch (geofencingEvent.getGeofenceTransition()) {
+                case Geofence.GEOFENCE_TRANSITION_ENTER:
+                    Log.i(TAG, "Enter geofence event detected. Sending event.");
+                    sendEvent(geofencingEvent, ON_ENTER);
+                    break;
+                case Geofence.GEOFENCE_TRANSITION_EXIT:
+                    Log.i(TAG, "Exit geofence event detected. Sending event.");
+                    sendEvent(geofencingEvent, ON_EXIT);
+                    break;
             }
         }
     }
@@ -244,10 +248,15 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule {
         for (Geofence geofence : geofencingEvent.getTriggeringGeofences()) {
             writableArray.pushString(geofence.getRequestId());
         }
-        Logger.getLogger(TAG).info("Sending events " + event);
+        Log.i(TAG, "Sending events " + event);
         getReactApplicationContext()
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                 .emit(event, writableArray);
-        Logger.getLogger(TAG).info("Sent events");
+        Log.i(TAG, "Sent events");
+    }
+
+    @Override
+    public String getName() {
+        return "RNBoundary";
     }
 }

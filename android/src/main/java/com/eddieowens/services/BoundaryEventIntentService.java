@@ -17,26 +17,33 @@ import java.util.logging.Logger;
 
 import static com.eddieowens.RNBoundaryModule.ON_ENTER;
 import static com.eddieowens.RNBoundaryModule.ON_EXIT;
+import static com.eddieowens.RNBoundaryModule.TAG;
 
-public class BoundaryIntentService extends IntentService {
+public class BoundaryEventIntentService extends IntentService {
+
+    private static final Logger logger = Logger.getLogger(TAG);
+
+    public static final String ACTION = "RNBoundary.Event";
+
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
      *
      * @param name Used to name the worker thread, important only for debugging.
      */
-    public BoundaryIntentService(String name) {
+    public BoundaryEventIntentService(String name) {
         super(name);
     }
 
-    public BoundaryIntentService() {
-        super("BoundaryIntentService");
+    public BoundaryEventIntentService() {
+        super("BoundaryEventIntentService");
     }
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         if (intent != null) {
-            intent.setAction("RNBoundary");
-            LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
+            logger.info("Broadcasting event");
+            intent.setAction(ACTION);
+            LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this.getApplicationContext());
             localBroadcastManager.sendBroadcast(intent);
         }
     }

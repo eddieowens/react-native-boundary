@@ -4,8 +4,7 @@
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <application>
-        <service android:name=".services.BoundaryIntentService"/>
-        <receiver android:name=".RNBoundaryModule$GeofenceEventBroadcastReceiver" android:exported="false"/>
+        <service android:name=".services.BoundaryEventIntentService" android:exported="false"/>
     </application>
 </manifest>
   
