@@ -1,7 +1,10 @@
 package com.eddieowens.services;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 
@@ -39,12 +42,11 @@ public class BoundaryEventIntentService extends IntentService {
     }
 
     @Override
-    protected void onHandleIntent(@Nullable Intent intent) {
+    protected void onHandleIntent(@Nullable final Intent intent) {
         if (intent != null) {
             logger.info("Broadcasting event");
             intent.setAction(ACTION);
-            LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this.getApplicationContext());
-            localBroadcastManager.sendBroadcast(intent);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         }
     }
 }
