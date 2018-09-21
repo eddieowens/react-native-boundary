@@ -48,9 +48,9 @@ RCT_EXPORT_METHOD(removeAll:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromise
         [self removeAllBoundaries];
     }
     @catch (NSException *ex) {
-        reject(@"failed_remove_all", @"Failed to remove all boundaries", ex)
+        reject(@"failed_remove_all", @"Failed to remove all boundaries", ex);
     }
-    resolve(NULL)
+    resolve(NULL);
 }
                                                                         
 - (void) removeAllBoundaries
