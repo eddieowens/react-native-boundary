@@ -11,6 +11,8 @@ RCT_EXPORT_MODULE()
     if (self) {
         self.locationManager = [[CLLocationManager alloc] init];
         self.locationManager.delegate = self;
+        
+        [self.locationManager requestAlwaysAuthorization];
     }
     
     return self;
@@ -18,6 +20,12 @@ RCT_EXPORT_MODULE()
 
 RCT_EXPORT_METHOD(add:(NSDictionary*)boundary addWithResolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    CLAuthorizationStatus status = [CLLocationManager locationServicesEnabled];
+    
+    if (!status) {
+        [self.locationManager requestAlwaysAuthorization];
+    }
+    
     if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorizedAlways) {
         NSString *id = boundary[@"id"];
         CLLocationCoordinate2D center = CLLocationCoordinate2DMake([boundary[@"lat"] doubleValue], [boundary[@"lng"] doubleValue]);
