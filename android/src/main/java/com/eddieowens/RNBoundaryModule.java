@@ -89,13 +89,13 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule implements Life
     }
 
     @ReactMethod
-    public void add(final ReadableMap readableMap, final Promise promise) {
+    public void add(final ReadableMap readableMap, Promise promise) {
         final GeofencingRequest geofencingRequest = createGeofenceRequest(createGeofence(readableMap));
         addGeofence(promise, geofencingRequest, geofencingRequest.getGeofences().get(0).getRequestId());
     }
 
     @ReactMethod
-    public void add(final ReadableArray readableArray, final Promise promise) {
+    public void add(final ReadableArray readableArray, Promise promise) {
         final List<Geofence> geofences = createGeofences(readableArray);
         final WritableArray geofenceRequestIds = Arguments.createArray();
         for (Geofence g : geofences) {
@@ -108,6 +108,9 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule implements Life
     }
 
     private Geofence createGeofence(ReadableMap readableMap) {
+      Log.i(TAG, "create " + readableMap.getString("id") + ", " +
+        readableMap.getDouble("lat") + ", " +
+        readableMap.getDouble("lng"));
         return new Geofence.Builder()
                 .setRequestId(readableMap.getString("id"))
                 .setCircularRegion(readableMap.getDouble("lat"), readableMap.getDouble("lng"), (float) readableMap.getDouble("radius"))
@@ -139,25 +142,15 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule implements Life
     }
 
     private PendingIntent getBoundaryPendingIntent() {
-        if (mBoundaryPendingIntent != null) {
-            return mBoundaryPendingIntent;
-        }
         Intent intent = new Intent(getReactApplicationContext().getBaseContext(), BoundaryEventIntentService.class);
-        mBoundaryPendingIntent = PendingIntent.getService(getReactApplicationContext().getBaseContext(), 0, intent, PendingIntent.
-                FLAG_UPDATE_CURRENT);
-        return mBoundaryPendingIntent;
+        intent.setAction(BoundaryEventIntentService.ACTION + "1");
+        return PendingIntent.getBroadcast(getReactApplicationContext().getBaseContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+
     }
 
     private void addGeofence(final Promise promise, final GeofencingRequest geofencingRequest, final WritableArray geofenceRequestIds) {
-        int permission = ActivityCompat.checkSelfPermission(getReactApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION);
-
-
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            permission = requestPermissions();
-        }
-
-
-        if (permission != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(getReactApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             promise.reject("PERM", "Access fine location is not permitted");
         } else {
             mGeofencingClient.addGeofences(
@@ -181,15 +174,8 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule implements Life
     }
 
     private void addGeofence(final Promise promise, final GeofencingRequest geofencingRequest, final String requestId) {
-        int permission = ActivityCompat.checkSelfPermission(getReactApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION);
-
-
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            permission = requestPermissions();
-        }
-
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            promise.reject("PERM", "Access fine location is not permitted. Hello");
+        if (ActivityCompat.checkSelfPermission(getReactApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            promise.reject("PERM", "Access fine location is not permitted");
         } else {
             Log.i(TAG, "Attempting to add geofence.");
 
@@ -241,23 +227,11 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule implements Life
         Log.i(TAG, "Sent events");
     }
 
-    private int requestPermissions() {
-        ActivityCompat.requestPermissions(getReactApplicationContext().getCurrentActivity(),
-                new String[] {
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                }, 1);
-
-         return ActivityCompat.checkSelfPermission(getReactApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION);
-    }
-
     public class GeofenceEventBroadcastReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
-
-            Log.e(TAG, "GEOFENCING: " + geofencingEvent.getGeofenceTransition());
             if (geofencingEvent.hasError()) {
                 Log.e(TAG, "Error in handling geofence " + GeofenceErrorMessages.getErrorString(geofencingEvent.getErrorCode()));
                 return;

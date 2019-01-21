@@ -2,6 +2,9 @@
 #import "RNBoundary.h"
 
 @implementation RNBoundary
+{
+  bool hasListeners;
+}
 
 RCT_EXPORT_MODULE()
 
@@ -59,6 +62,16 @@ RCT_EXPORT_METHOD(removeAll:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromise
     resolve(NULL);
 }
 
+// Will be called when this module's first listener is added.
+-(void)startObserving {
+    hasListeners = YES;
+}
+
+// Will be called when this module's last listener is removed, or on dealloc.
+-(void)stopObserving {
+    hasListeners = NO;
+}
+
 - (void) removeAllBoundaries
 {
     for(CLRegion *region in [self.locationManager monitoredRegions]) {
@@ -82,16 +95,50 @@ RCT_EXPORT_METHOD(removeAll:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromise
     return @[@"onEnter", @"onExit"];
 }
 
+- (void)sendEventAfter:(NSString *)event withBody:(NSString *)body andRetry:(int)retry
+{
+  if (retry < 5) {
+    __weak typeof(self) weakSelf = self;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_current_queue(), ^{
+      typeof(self) strongSelf = weakSelf;
+      if (strongSelf) {
+        if (strongSelf->hasListeners) {
+          [strongSelf sendEventWithName:event body:body];
+        } else {
+          [strongSelf sendEventAfter:event withBody:body andRetry:(retry + 1)];
+        }
+      }
+    });
+  }
+}
+
+
 - (void)locationManager:(CLLocationManager *)manager didEnterRegion:(CLRegion *)region
 {
-    NSLog(@"didEnter : %@", region);
+  NSLog(@"didEnter : %@", region);
+  UIApplicationState state = [[UIApplication sharedApplication] applicationState];
+  // if state is not active
+  if (!hasListeners) {
+    if (state != UIApplicationStateActive) {
+      [self sendEventAfter:@"onEnter" withBody:region.identifier andRetry:0];
+    }
+  } else {
     [self sendEventWithName:@"onEnter" body:region.identifier];
+  }
 }
 
 - (void)locationManager:(CLLocationManager *)manager didExitRegion:(CLRegion *)region
 {
     NSLog(@"didExit : %@", region);
-    [self sendEventWithName:@"onExit" body:region.identifier];
+    UIApplicationState state = [[UIApplication sharedApplication] applicationState];
+    // if state is not active
+    if (!hasListeners) {
+      if (state != UIApplicationStateActive) {
+        [self sendEventAfter:@"onExit" withBody:region.identifier andRetry:0];
+      }
+    } else {
+      [self sendEventWithName:@"onExit" body:region.identifier];
+    }
 }
 
 + (BOOL)requiresMainQueueSetup
@@ -100,4 +147,3 @@ RCT_EXPORT_METHOD(removeAll:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromise
 }
 
 @end
-

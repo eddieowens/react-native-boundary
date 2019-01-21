@@ -4,11 +4,12 @@
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <application>
-        <service
-            android:name=".services.BoundaryEventIntentService"
-            android:enabled="true"
-            android:exported="true"
-            />
+        <receiver
+            android:name=".services.BoundaryEventIntentService">
+            <intent-filter>
+                <action android:name="com.example.geofence.ACTION_RECEIVE" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>
   

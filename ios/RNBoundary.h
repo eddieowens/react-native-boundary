@@ -11,6 +11,6 @@
 @interface RNBoundary : RCTEventEmitter <RCTBridgeModule, CLLocationManagerDelegate>
 - (bool) removeBoundary:(NSString *)boundaryId;
 - (void) removeAllBoundaries;
+- (void) sendEventAfter:(NSString *)event withBody:(NSString *)body andRetry:(int)retry;
 @property (strong, nonatomic) CLLocationManager *locationManager;
 @end
-  
