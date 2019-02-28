@@ -101,7 +101,7 @@ Name        | Arguments                                     | Note
 `on`        | event: [event](#events), callback: `function` | Triggers the callback when the `event` occurs. The callback will be passed an array of boundary ids as `strings`. Can be called in the background
 `add`       | boundary: [boundary](#boundary)               | Adds a `Boundary` that can be triggered when an [event](#events) occurs
 `remove`    | id: `string`                                  | Removes a Boundary from being triggered. Boundaries will remain until `remove` or `removeAll` is called or the app is uninstalled
-`removeAll` | `void`                                        | Removes all boundaries.
+`removeAll` | `void`                                        | Removes all boundaries and event callabacks.
 
 ### Types
 #### Boundary
