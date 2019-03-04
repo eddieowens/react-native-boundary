@@ -18,7 +18,7 @@ RCT_EXPORT_MODULE()
 
 RCT_EXPORT_METHOD(add:(NSDictionary*)boundary addWithResolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    if (CLLocationManager.authorizationStatus !== kCLAuthorizationStatusAuthorizedAlways) {
+    if (CLLocationManager.authorizationStatus != kCLAuthorizationStatusAuthorizedAlways) {
         [self.locationManager requestAlwaysAuthorization];
     }
 
@@ -51,7 +51,7 @@ RCT_EXPORT_METHOD(removeAll:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromise
     @try {
         [self removeAllBoundaries];
     }
-    @catch (NSException *ex) {
+    @catch (NSError *ex) {
         reject(@"failed_remove_all", @"Failed to remove all boundaries", ex);
     }
     resolve(NULL);
