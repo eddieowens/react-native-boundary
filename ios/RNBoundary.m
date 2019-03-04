@@ -18,9 +18,6 @@ RCT_EXPORT_MODULE()
 
 RCT_EXPORT_METHOD(add:(NSDictionary*)boundary addWithResolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    % CLAuthorizationStatus status = [CLLocationManager locationServicesEnabled];
-
-    % if (!status) {
     if (CLLocationManager.authorizationStatus !== kCLAuthorizationStatusAuthorizedAlways) {
         [self.locationManager requestAlwaysAuthorization];
     }
