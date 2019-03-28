@@ -1,14 +1,17 @@
-
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.eddieowens">
+    package="com.eddieowens">
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <application>
         <service
-            android:name=".services.BoundaryEventIntentService"
+            android:name=".services.BoundaryEventJobIntentService"
             android:enabled="true"
             android:exported="true"
-            />
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <receiver
+            android:name=".receivers.BoundaryEventBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true" />
     </application>
 </manifest>
   

@@ -12,8 +12,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.eddieowens.errors.GeofenceErrorMessages;
-import com.eddieowens.services.BoundaryEventIntentService;
+import com.eddieowens.receivers.BoundaryEventBroadcastReceiver;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
@@ -26,7 +25,6 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
-import com.google.android.gms.location.GeofencingEvent;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -38,18 +36,16 @@ import java.util.List;
 
 public class RNBoundaryModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
 
-    public static final String ON_ENTER = "onEnter";
-    public static final String ON_EXIT = "onExit";
     public static final String TAG = "RNBoundary";
+    public static final String GEOFENCE_DATA_TO_EMIT = "com.eddieowens.GEOFENCE_DATA_TO_EMIT";
 
     private GeofencingClient mGeofencingClient;
-
-    private GeofenceEventBroadcastReceiver geofenceEventBroadcastReceiver;
-
     private PendingIntent mBoundaryPendingIntent;
+    private GeofenceDataChangedReceiver geofenceDataChangedReceiver = new GeofenceDataChangedReceiver();
 
-    public RNBoundaryModule(ReactApplicationContext reactContext) {
+    RNBoundaryModule(ReactApplicationContext reactContext) {
         super(reactContext);
+        this.mGeofencingClient = LocationServices.getGeofencingClient(getReactApplicationContext());
         getReactApplicationContext().addLifecycleEventListener(this);
     }
 
@@ -142,8 +138,8 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule implements Life
         if (mBoundaryPendingIntent != null) {
             return mBoundaryPendingIntent;
         }
-        Intent intent = new Intent(getReactApplicationContext().getBaseContext(), BoundaryEventIntentService.class);
-        mBoundaryPendingIntent = PendingIntent.getService(getReactApplicationContext().getBaseContext(), 0, intent, PendingIntent.
+        Intent intent = new Intent(getReactApplicationContext(), BoundaryEventBroadcastReceiver.class);
+        mBoundaryPendingIntent = PendingIntent.getBroadcast(getReactApplicationContext(), 0, intent, PendingIntent.
                 FLAG_UPDATE_CURRENT);
         return mBoundaryPendingIntent;
     }
@@ -233,54 +229,14 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule implements Life
                 });
     }
 
-    private void sendEvent(String event, Object params) {
-        Log.i(TAG, "Sending events " + event);
-        getReactApplicationContext()
-                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                .emit(event, params);
-        Log.i(TAG, "Sent events");
-    }
-
     private int requestPermissions() {
         ActivityCompat.requestPermissions(getReactApplicationContext().getCurrentActivity(),
-                new String[] {
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
+                new String[]{
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
                 }, 1);
 
-         return ActivityCompat.checkSelfPermission(getReactApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION);
-    }
-
-    public class GeofenceEventBroadcastReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
-
-            Log.e(TAG, "GEOFENCING: " + geofencingEvent.getGeofenceTransition());
-            if (geofencingEvent.hasError()) {
-                Log.e(TAG, "Error in handling geofence " + GeofenceErrorMessages.getErrorString(geofencingEvent.getErrorCode()));
-                return;
-            }
-            switch (geofencingEvent.getGeofenceTransition()) {
-                case Geofence.GEOFENCE_TRANSITION_ENTER:
-                    Log.i(TAG, "Enter geofence event detected. Sending event.");
-                    WritableArray writableArray = Arguments.createArray();
-                    for (Geofence geofence : geofencingEvent.getTriggeringGeofences()) {
-                        writableArray.pushString(geofence.getRequestId());
-                    }
-                    sendEvent(ON_ENTER, writableArray);
-                    break;
-                case Geofence.GEOFENCE_TRANSITION_EXIT:
-                    Log.i(TAG, "Exit geofence event detected. Sending event.");
-                    WritableArray writableArray1 = Arguments.createArray();
-                    for (Geofence geofence : geofencingEvent.getTriggeringGeofences()) {
-                        writableArray1.pushString(geofence.getRequestId());
-                    }
-                    sendEvent(ON_EXIT, writableArray1);
-                    break;
-            }
-        }
+        return ActivityCompat.checkSelfPermission(getReactApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION);
     }
 
     @Override
@@ -290,29 +246,43 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule implements Life
 
     @Override
     public void onHostResume() {
-        Log.i(TAG, "resume!");
-        if (geofenceEventBroadcastReceiver == null) {
-            geofenceEventBroadcastReceiver = new GeofenceEventBroadcastReceiver();
-            LocalBroadcastManager.getInstance(getReactApplicationContext())
-                    .registerReceiver(
-                            geofenceEventBroadcastReceiver,
-                            new IntentFilter(BoundaryEventIntentService.ACTION)
-                    );
-        }
         if (mGeofencingClient == null) {
-            this.mGeofencingClient = LocationServices.getGeofencingClient(getReactApplicationContext().getBaseContext());
+            this.mGeofencingClient = LocationServices.getGeofencingClient(getReactApplicationContext());
         }
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(GEOFENCE_DATA_TO_EMIT);
+        LocalBroadcastManager
+                .getInstance(this.getReactApplicationContext())
+                .registerReceiver(geofenceDataChangedReceiver, intentFilter);
     }
 
     @Override
     public void onHostPause() {
-
-        Log.i(TAG, "pause!");
+        LocalBroadcastManager.getInstance(this.getReactApplicationContext())
+                .unregisterReceiver(geofenceDataChangedReceiver);
     }
 
     @Override
     public void onHostDestroy() {
+    }
 
-        Log.i(TAG, "destroy!");
+
+    private class GeofenceDataChangedReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String event = intent.getStringExtra("event");
+            final ArrayList<String> geofenceIds = intent.getStringArrayListExtra("params");
+            final WritableArray geofenceIdsToBridge = Arguments.createArray();
+            for (String geofenceId : geofenceIds) {
+                geofenceIdsToBridge.pushString(geofenceId);
+            }
+
+            Log.i(TAG, "Sending events " + event);
+            RNBoundaryModule.this.getReactApplicationContext()
+                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                    .emit(event, geofenceIdsToBridge);
+            Log.i(TAG, "Sent events");
+        }
     }
 }
