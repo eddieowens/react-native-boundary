@@ -1,8 +1,10 @@
 package com.eddieowens.services;
 
+import android.app.ActivityManager;
 import android.app.IntentService;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -37,34 +39,58 @@ public class BoundaryEventIntentService extends BroadcastReceiver {
     public static final String ACTION = "RNBoundary.Event";
 
     @Override
-    public void onReceive(Context context, Intent intent) {
-      Log.i(TAG, "onReceive");
-        logger.info("Broadcasting event1");
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                int importance = NotificationManager.IMPORTANCE_DEFAULT;
-                NotificationChannel channel = new NotificationChannel("1", "blaname", importance);
-                channel.setDescription("bla");
-                // Register the channel with the system; you can't change the importance
-                // or other notification behaviors after this
-                NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
-                notificationManager.createNotificationChannel(channel);
-            }
-
-            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context, "1")
-                    .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
-                    .setContentTitle("NEw received")
-                    .setContentText("RECEIVED NOT")
-                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-            notificationManager.notify(1, mBuilder.build());
-
-
+    public void onReceive(final Context context, final Intent intent) {
         if (intent != null) {
+            boolean wasLaunched = wakeUpAppIfNotRunning(context);
 
-            logger.info("Broadcasting event");
-            intent.setAction(ACTION);
-            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    intent.setAction(ACTION);
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                }
+            }, wasLaunched ? 2000 : 0);
         }
+    }
+
+    private Boolean isActivityRunning(Context context, Class activityClass) {
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> tasks = activityManager.getRunningTasks(Integer.MAX_VALUE);
+
+        for (ActivityManager.RunningTaskInfo task : tasks) {
+            if (activityClass.getCanonicalName().equalsIgnoreCase(task.baseActivity.getClassName()))
+                return true;
+        }
+
+        return false;
+    }
+
+    private Class getMainActivityClass(Context context) {
+        String packageName = context.getPackageName();
+        Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+        String className = launchIntent.getComponent().getClassName();
+        try {
+            return Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private boolean wakeUpAppIfNotRunning(Context context) {
+        Class intentClass = getMainActivityClass(context);
+        Boolean isRunning = isActivityRunning(context, intentClass);
+
+        if (!isRunning) {
+            Intent intent = new Intent(context, intentClass);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            // Important:  make sure to add android:launchMode="singleInstance" in the manifest
+            // to keep multiple copies of this activity from getting created if the user has
+            // already manually launched the app.
+            context.startActivity(intent);
+        }
+
+        return !isRunning;
     }
 }

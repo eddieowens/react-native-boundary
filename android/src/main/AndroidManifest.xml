@@ -7,7 +7,7 @@
         <receiver
             android:name=".services.BoundaryEventIntentService">
             <intent-filter>
-                <action android:name="com.example.geofence.ACTION_RECEIVE" />
+                <action android:name="com.eddieowens.geofence.ACTION_RECEIVE" />
             </intent-filter>
         </receiver>
     </application>

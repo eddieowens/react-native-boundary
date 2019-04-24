@@ -1,6 +1,6 @@
-import {NativeEventEmitter, NativeModules} from 'react-native';
+import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
 
-const {RNBoundary} = NativeModules;
+const { RNBoundary } = NativeModules;
 
 const TAG = "RNBoundary";
 
@@ -39,10 +39,18 @@ export default {
       throw TAG + ': invalid event';
     }
 
+    if (Platform.OS !== 'ios') {
+      RNBoundary.setHasListeners(true);
+    }
+
     return boundaryEventEmitter.addListener(event, callback);
   },
 
   removeAll: () => {
+    if (Platform.OS !== 'ios') {
+      RNBoundary.setHasListeners(false);
+    }
+
     Object.values(Events).forEach(e => boundaryEventEmitter.removeAllListeners(e));
     return RNBoundary.removeAll();
   },
@@ -55,4 +63,3 @@ export default {
     return RNBoundary.remove(id);
   }
 }
-
