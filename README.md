@@ -18,14 +18,14 @@ class MyComponent extends Class {
       .then(() => console.log("success!"))
       .catch(e => console.error("error :(", e));
    
-    Boundary.on(Events.ENTER, ids => {
+    Boundary.on(Events.ENTER, id => {
       // Prints 'Get out of my Chipotle!!'
-      console.log(`Get out of my ${ids[0]}!!`);
+      console.log(`Get out of my ${id}!!`);
     });
     
-    Boundary.on(Events.EXIT, ids => {
+    Boundary.on(Events.EXIT, id => {
       // Prints 'Ya! You better get out of my Chipotle!!'
-      console.log(`Ya! You better get out of my ${ids[0]}!!`)
+      console.log(`Ya! You better get out of my ${id}!!`)
     })
   }
   
