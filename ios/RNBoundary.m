@@ -16,6 +16,12 @@ RCT_EXPORT_MODULE()
     return self;
 }
 
+- (void)dealloc
+{
+    [self.locationManager stopUpdatingLocation];
+    self.locationManager.delegate = nil;
+}
+
 RCT_EXPORT_METHOD(add:(NSDictionary*)boundary addWithResolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     if (CLLocationManager.authorizationStatus != kCLAuthorizationStatusAuthorizedAlways) {
