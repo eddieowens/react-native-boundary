@@ -1,4 +1,4 @@
-import {NativeEventEmitter, NativeModules} from 'react-native';
+import {NativeEventEmitter, NativeModules, AppRegistry} from 'react-native';
 
 const {RNBoundary} = NativeModules;
 
@@ -14,6 +14,13 @@ const Events = {
 export {
   Events
 }
+
+const HeadlessBoundaryEventTask = async ({event, ids}) => {
+  console.log(event, ids);
+  boundaryEventEmitter.emit(event, ids)
+};
+
+AppRegistry.registerHeadlessTask('OnBoundaryEvent', () => HeadlessBoundaryEventTask);
 
 export default {
   add: boundary => {
