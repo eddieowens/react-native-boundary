@@ -34,7 +34,7 @@ public class BoundaryEventJobIntentService extends JobIntentService {
         Log.i(TAG, "Handling geofencing event");
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
 
-        Log.e(TAG, "GEOFENCING: " + geofencingEvent.getGeofenceTransition());
+        Log.i(TAG, "Geofence transition: " + geofencingEvent.getGeofenceTransition());
         if (geofencingEvent.hasError()) {
             Log.e(TAG, "Error in handling geofence " + GeofenceErrorMessages.getErrorString(geofencingEvent.getErrorCode()));
             return;

@@ -7,12 +7,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.eddieowens.receivers.BoundaryEventBroadcastReceiver;
+import com.eddieowens.services.BoundaryEventHeadlessTaskService;
+import com.facebook.react.HeadlessJsTaskService;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
@@ -266,22 +269,20 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule implements Life
     public void onHostDestroy() {
     }
 
-
     private class GeofenceDataChangedReceiver extends BroadcastReceiver {
-
         @Override
         public void onReceive(Context context, Intent intent) {
             final String event = intent.getStringExtra("event");
-            final ArrayList<String> geofenceIds = intent.getStringArrayListExtra("params");
-            final WritableArray geofenceIdsToBridge = Arguments.createArray();
-            for (String geofenceId : geofenceIds) {
-                geofenceIdsToBridge.pushString(geofenceId);
-            }
-
             Log.i(TAG, "Sending events " + event);
-            RNBoundaryModule.this.getReactApplicationContext()
-                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                    .emit(event, geofenceIdsToBridge);
+            Bundle bundle = new Bundle();
+            bundle.putString("event", event);
+            bundle.putStringArrayList("ids", intent.getStringArrayListExtra("params"));
+
+            Intent headlessBoundaryIntent = new Intent(context, BoundaryEventHeadlessTaskService.class);
+            headlessBoundaryIntent.putExtras(bundle);
+
+            context.startService(headlessBoundaryIntent);
+            HeadlessJsTaskService.acquireWakeLockNow(context);
             Log.i(TAG, "Sent events");
         }
     }
