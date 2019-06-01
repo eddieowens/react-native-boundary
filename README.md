@@ -30,6 +30,11 @@ class MyComponent extends Class {
   }
   
   componentWillUnmount() {
+    // Remove the events
+    Boundary.off(Events.ENTER)
+    Boundary.off(Events.EXIT)
+
+    // Remove the boundary from native API´s
     Boundary.remove('Chipotle')
       .then(() => console.log('Goodbye Chipotle :('))
       .catch(e => console.log('Failed to delete Chipotle :)', e))
@@ -99,6 +104,7 @@ Add the following to your `Info.plist`:
 Name        | Arguments                                     | Note
 ----------- | --------------------------------------------- | ---
 `on`        | event: [event](#events), callback: `function` | Triggers the callback when the `event` occurs. The callback will be passed an array of boundary ids as `strings`. Can be called in the background
+`off`       | event: [event](#events)                       | Removes bound event listeners
 `add`       | boundary: [boundary](#boundary)               | Adds a `Boundary` that can be triggered when an [event](#events) occurs
 `remove`    | id: `string`                                  | Removes a Boundary from being triggered. Boundaries will remain until `remove` or `removeAll` is called or the app is uninstalled
 `removeAll` | `void`                                        | Removes all boundaries and event callbacks.

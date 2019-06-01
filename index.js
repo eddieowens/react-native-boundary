@@ -49,8 +49,15 @@ export default {
     return boundaryEventEmitter.addListener(event, callback);
   },
 
+  off: (event) => {
+    if (!Object.values(Events).find(e => e === event)) {
+      throw TAG + ': invalid event';
+    }
+
+    return boundaryEventEmitter.removeAllListeners(event);
+  },
+
   removeAll: () => {
-    Object.values(Events).forEach(e => boundaryEventEmitter.removeAllListeners(e));
     return RNBoundary.removeAll();
   },
 
