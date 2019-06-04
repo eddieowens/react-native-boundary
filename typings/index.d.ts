@@ -16,8 +16,8 @@ export interface BoundaryStatic {
     on: (event: Events, callback: (boundaries: string[]) => void) => EmitterSubscription;
     off: (event: Events) => void;
     add: (boundary: Boundary) => Promise<string>;
-    remove: (id: string) => void;
-    removeAll: () => void;
+    remove: (id: string) => Promise<null>;
+    removeAll: () => Promise<null>;
 }
 
 declare let Boundary: BoundaryStatic;
