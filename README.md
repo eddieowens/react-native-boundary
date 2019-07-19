@@ -124,3 +124,10 @@ Field    | Type      | Note
 `ENTER`  | `string`  | Event for when a user enters a [boundary](#boundary)  
 `EXIT`   | `string`  | Event for when a user exits a [boundary](#boundary)
 
+## Common Issues
+
+Error    | Platform      | Note
+-------- | --------- | ----
+1000  | Android | You'll see this error thrown on `add` when GeoFencing is not available. On Emulator go to Settings -> Location -> Mode -> Click "High Accuracy" or "Battery Saving" then accept the agreement.
+
+
