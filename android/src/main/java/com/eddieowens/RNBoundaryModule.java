@@ -165,6 +165,9 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule implements Life
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
+                            if (e.getMessage().contains("1000")) {
+                                promise.reject(new Exception("Error code: 1000. Android emulator requires Settings -> Location -> Mode to be set at 'Battery Saving' or 'High Accuracy'"));
+                            }
                             promise.reject(e);
                         }
                     });
