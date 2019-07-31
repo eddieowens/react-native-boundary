@@ -78,13 +78,31 @@ class MyComponent extends Class {
 
 #### Android
 
-Add the `ACCESS_FINE_LOCATION` permission to your `AndroidManifest.xml` like so,
+Add the following permission, services and receivers to your `AndroidManifest.xml` like so:
 
 ```xml
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.mypackage">
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     ...
+    <application>
+        <!-- Services -->
+        <service
+            android:name="com.eddieowens.services.BoundaryEventJobIntentService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service android:name="com.eddieowens.services.BoundaryEventHeadlessTaskService" />
+
+        <!-- Receivers -->
+        <receiver
+            android:name="com.eddieowens.receivers.BoundaryEventBroadcastReceiver"
+            android:enabled="true" />
+
+        ...
+    </application>
 </manifest>
 ```
 
