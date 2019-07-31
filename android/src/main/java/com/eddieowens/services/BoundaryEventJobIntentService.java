@@ -38,32 +38,24 @@ public class BoundaryEventJobIntentService extends JobIntentService {
         }
         switch (geofencingEvent.getGeofenceTransition()) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
-                Log.i(TAG, "Enter geofence event detected. Sending event.");
-                final ArrayList<String> enteredGeofences = new ArrayList<>();
                 for (Geofence geofence : geofencingEvent.getTriggeringGeofences()) {
-                    enteredGeofences.add(geofence.getRequestId());
+                    Log.i(TAG, "Enter geofence event detected. Sending event.");
+                    sendEvent(this.getApplicationContext(), ON_ENTER, geofence.getRequestId());
                 }
-                sendEvent(this.getApplicationContext(), ON_ENTER, enteredGeofences);
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
-                Log.i(TAG, "Exit geofence event detected. Sending event.");
-                final ArrayList<String> exitingGeofences = new ArrayList<>();
                 for (Geofence geofence : geofencingEvent.getTriggeringGeofences()) {
-                    exitingGeofences.add(geofence.getRequestId());
+                    Log.i(TAG, "Exit geofence event detected. Sending event.");
+                    sendEvent(this.getApplicationContext(), ON_EXIT, geofence.getRequestId());
                 }
-                sendEvent(this.getApplicationContext(), ON_EXIT, exitingGeofences);
                 break;
         }
     }
 
-    private void sendEvent(Context context, String event, ArrayList<String> params) {
-        final Intent intent = new Intent(RNBoundaryModule.GEOFENCE_DATA_TO_EMIT);
-        intent.putExtra("event", event);
-        intent.putExtra("params", params);
-
+    private void sendEvent(Context context, String event, String id) {
         Bundle bundle = new Bundle();
         bundle.putString("event", event);
-        bundle.putStringArrayList("ids", intent.getStringArrayListExtra("params"));
+        bundle.putString("id", id);
 
         Intent headlessBoundaryIntent = new Intent(context, BoundaryEventHeadlessTaskService.class);
         headlessBoundaryIntent.putExtras(bundle);
