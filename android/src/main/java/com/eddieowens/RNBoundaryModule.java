@@ -200,6 +200,10 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule implements Life
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             Log.i(TAG, "Failed to add geofence.");
+                            if (e.getMessage().contains("1000")) {
+                                promise.reject(new Exception("Error code: 1000. Android emulator requires Settings -> Location -> Mode to be set at 'Battery Saving' or 'High Accuracy'"));
+                                Log.i(TAG, "Error has code 1000 in it");
+                            }
                             promise.reject(e);
                         }
                     });
