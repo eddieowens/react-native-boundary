@@ -32,9 +32,6 @@ import java.util.List;
 public class RNBoundaryModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
 
     public static final String TAG = "RNBoundary";
-    public static final String ON_ENTER = "onEnter";
-    public static final String ON_EXIT = "onExit";
-    public static final String GEOFENCE_DATA_TO_EMIT = "com.eddieowens.GEOFENCE_DATA_TO_EMIT";
 
     private GeofencingClient mGeofencingClient;
     private PendingIntent mBoundaryPendingIntent;
