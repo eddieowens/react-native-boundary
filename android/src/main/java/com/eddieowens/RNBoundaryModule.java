@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
+import com.eddieowens.errors.GeofenceErrorMessages;
 import com.eddieowens.receivers.BoundaryEventBroadcastReceiver;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
@@ -19,6 +20,7 @@ import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
@@ -165,6 +167,9 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule implements Life
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
+                            if (e.getMessage().contains(Integer.toString(GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE))) {
+                                promise.reject(new Exception(GeofenceErrorMessages.getErrorString(GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE)));
+                            }
                             promise.reject(e);
                         }
                     });
@@ -200,6 +205,9 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule implements Life
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             Log.i(TAG, "Failed to add geofence.");
+                            if (e.getMessage().contains(Integer.toString(GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE))) {
+                                promise.reject(new Exception(GeofenceErrorMessages.getErrorString(GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE)));
+                            }
                             promise.reject(e);
                         }
                     });
