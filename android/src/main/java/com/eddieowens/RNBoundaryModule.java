@@ -31,6 +31,8 @@ import java.util.List;
 
 public class RNBoundaryModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
 
+    public static final String GEOFENCE_UNAVAILABLE_ERROR_CODE="1000";
+    public static final String GEOFENCE_UNAVAILABLE_ERROR_MESSAGE="Error code: 1000. Android emulator requires Settings -> Location -> Mode to be set at 'Battery Saving' or 'High Accuracy'";
     public static final String TAG = "RNBoundary";
     public static final String ON_ENTER = "onEnter";
     public static final String ON_EXIT = "onExit";
@@ -165,8 +167,8 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule implements Life
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            if (e.getMessage().contains("1000")) {
-                                promise.reject(new Exception("Error code: 1000. Android emulator requires Settings -> Location -> Mode to be set at 'Battery Saving' or 'High Accuracy'"));
+                            if (e.getMessage().contains(GEOFENCE_UNAVAILABLE_ERROR_CODE)) {
+                                promise.reject(new Exception(GEOFENCE_UNAVAILABLE_ERROR_MESSAGE));
                             }
                             promise.reject(e);
                         }
@@ -203,8 +205,8 @@ public class RNBoundaryModule extends ReactContextBaseJavaModule implements Life
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             Log.i(TAG, "Failed to add geofence.");
-                            if (e.getMessage().contains("1000")) {
-                                promise.reject(new Exception("Error code: 1000. Android emulator requires Settings -> Location -> Mode to be set at 'Battery Saving' or 'High Accuracy'"));
+                            if (e.getMessage().contains(GEOFENCE_UNAVAILABLE_ERROR_CODE)) {
+                                promise.reject(new Exception(GEOFENCE_UNAVAILABLE_ERROR_MESSAGE));
                             }
                             promise.reject(e);
                         }
