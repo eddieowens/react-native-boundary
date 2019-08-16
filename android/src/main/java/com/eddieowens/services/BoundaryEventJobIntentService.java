@@ -81,7 +81,6 @@ public class BoundaryEventJobIntentService extends JobIntentService {
             // But we can create a foreground service and bring an notification to the front
             // http://stackoverflow.com/questions/8489993/check-android-application-is-in-foreground-or-not
             context.startForegroundService(headlessBoundaryIntent);
-            //HeadlessJsTaskService.acquireWakeLockNow(context);
         }
     }
 

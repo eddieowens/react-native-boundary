@@ -1,6 +1,7 @@
 package com.eddieowens.services;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +18,8 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.jstasks.HeadlessJsTaskConfig;
 
 public class BoundaryEventHeadlessTaskService extends HeadlessJsTaskService {
+    public static final String NOTIFICATION_CHANNEL_ID = "GEOFENCE_SERVICE_CHANNEL";
+
     @Nullable
     protected HeadlessJsTaskConfig getTaskConfig(Intent intent) {
         Bundle extras = intent.getExtras();
@@ -31,23 +34,35 @@ public class BoundaryEventHeadlessTaskService extends HeadlessJsTaskService {
     public void onCreate() {
         super.onCreate();
 
-        if (Build.VERSION.SDK_INT >= 26) {
-            String NOTIFICATION_CHANNEL_ID = "com.woffu.app.WOFFU_CHANNEL";
-            String GROUP_KEY = "com.woffu.app.WOFFU_GROUP";
+        Context context = this.getApplicationContext();
 
-            Context context = this.getApplicationContext();
+        // Channel for the foreground service notification
+        createChannel(context);
 
-            // Notification for the foreground service
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
-                    .setSmallIcon(R.drawable.common_google_signin_btn_icon_light_normal)
-                    .setPriority(NotificationManager.IMPORTANCE_LOW)
-                    .setContentTitle("Woffu Geofencing Service")
-                    .setContentText("Woffu is not spying you, or constantly tracking your location. This is a geofence, to know when you get closer to the work location.")
-                    .setOngoing(true)
-                    .setColor(ContextCompat.getColor(context, R.color.accent_material_light))
-                    .setGroup(GROUP_KEY);
-            Notification notification = builder.build();
-            startForeground(9999999, notification);
+        // Notification for the foreground service
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
+                .setSmallIcon(R.drawable.common_google_signin_btn_icon_light_normal)
+                .setContentTitle("Geofence Service")
+                .setContentText("We detected that you're close to your work location.")
+                .setOngoing(true)
+                .setColor(ContextCompat.getColor(context, R.color.accent_material_light));
+        Notification notification = builder.build();
+        startForeground(999999999, notification);
+    }
+
+    private void createChannel(Context context) {
+        String NOTIFICATION_CHANNEL_NAME = "Geofence Service";
+        String NOTIFICATION_CHANNEL_DESCRIPTION = "Only used to know when you're close to the work location.";
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    NOTIFICATION_CHANNEL_ID,
+                    NOTIFICATION_CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_LOW);
+            channel.setDescription(NOTIFICATION_CHANNEL_DESCRIPTION);
+
+            NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
         }
     }
 }
