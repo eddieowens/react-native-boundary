@@ -1,6 +1,6 @@
 {
   "name": "react-native-boundary-woffu",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "native geofencing and region monitoring",
   "main": "index.js",
   "scripts": {
