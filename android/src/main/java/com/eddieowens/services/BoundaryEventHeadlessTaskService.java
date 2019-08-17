@@ -18,7 +18,7 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.jstasks.HeadlessJsTaskConfig;
 
 public class BoundaryEventHeadlessTaskService extends HeadlessJsTaskService {
-    public static final String NOTIFICATION_CHANNEL_ID = "GEOFENCE_SERVICE_CHANNEL";
+    public static final String NOTIFICATION_CHANNEL_ID = "com.eddieowens.GEOFENCE_SERVICE_CHANNEL";
 
     @Nullable
     protected HeadlessJsTaskConfig getTaskConfig(Intent intent) {
@@ -34,6 +34,19 @@ public class BoundaryEventHeadlessTaskService extends HeadlessJsTaskService {
     public void onCreate() {
         super.onCreate();
 
+        startForegroundServiceNotification();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        int result = super.onStartCommand(intent, flags, startId);
+
+        startForegroundServiceNotification();
+
+        return result;
+    }
+
+    private void startForegroundServiceNotification() {
         Context context = this.getApplicationContext();
 
         // Channel for the foreground service notification
@@ -47,12 +60,12 @@ public class BoundaryEventHeadlessTaskService extends HeadlessJsTaskService {
                 .setOngoing(true)
                 .setColor(ContextCompat.getColor(context, R.color.accent_material_light));
         Notification notification = builder.build();
-        startForeground(999999999, notification);
+        startForeground(9999999, notification);
     }
 
     private void createChannel(Context context) {
         String NOTIFICATION_CHANNEL_NAME = "Geofence Service";
-        String NOTIFICATION_CHANNEL_DESCRIPTION = "Only used to know when you're close to the work location.";
+        String NOTIFICATION_CHANNEL_DESCRIPTION = "Only used to know when you're close to a configured location.";
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
