@@ -12,5 +12,14 @@
 - (bool) removeBoundary:(NSString *)boundaryId;
 - (void) removeAllBoundaries;
 @property (strong, nonatomic) CLLocationManager *locationManager;
+@property (strong, nonatomic) NSMutableSet *queuedEvents;
+@property (assign, nonatomic) bool hasListeners;
 @end
-  
+
+
+@interface GeofenceEvent : NSObject
+- (id) initWithId:(NSString*)geofenceId forEvent:(NSString *)eventName;
+@property (strong, nonatomic) NSString *geofenceId;
+@property (strong, nonatomic) NSString *name;
+@property (strong, nonatomic) NSDate* date;
+@end
