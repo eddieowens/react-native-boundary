@@ -69,9 +69,6 @@ public class BoundaryEventHeadlessTaskService extends HeadlessJsTaskService {
             builder.setSmallIcon(iconResource);
         }
 
-        Log.i(TAG, "LAUNCH: " + title + " " + text + " " + iconResource);
-
-
         return builder;
     }
 
