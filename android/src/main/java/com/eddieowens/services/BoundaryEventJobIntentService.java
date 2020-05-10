@@ -1,11 +1,14 @@
 package com.eddieowens.services;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.JobIntentService;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.JobIntentService;
 
 import com.eddieowens.RNBoundaryModule;
 import com.eddieowens.errors.GeofenceErrorMessages;
@@ -14,6 +17,7 @@ import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.eddieowens.RNBoundaryModule.TAG;
 
@@ -68,7 +72,33 @@ public class BoundaryEventJobIntentService extends JobIntentService {
         Intent headlessBoundaryIntent = new Intent(context, BoundaryEventHeadlessTaskService.class);
         headlessBoundaryIntent.putExtras(bundle);
 
-        context.startService(headlessBoundaryIntent);
-        HeadlessJsTaskService.acquireWakeLockNow(context);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O || isAppOnForeground(context)) {
+            context.startService(headlessBoundaryIntent);
+            HeadlessJsTaskService.acquireWakeLockNow(context);
+        }
+        else {
+            // Since Oreo (8.0) and up they have restricted starting background services, and it will crash the app
+            // But we can create a foreground service and bring an notification to the front
+            // http://stackoverflow.com/questions/8489993/check-android-application-is-in-foreground-or-not
+            context.startForegroundService(headlessBoundaryIntent);
+        }
+    }
+
+    private boolean isAppOnForeground(Context context) {
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> appProcesses =
+                activityManager.getRunningAppProcesses();
+        if (appProcesses == null) {
+            return false;
+        }
+        final String packageName = context.getPackageName();
+        for (ActivityManager.RunningAppProcessInfo appProcess : appProcesses) {
+            if (appProcess.importance ==
+                    ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND &&
+                    appProcess.processName.equals(packageName)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
